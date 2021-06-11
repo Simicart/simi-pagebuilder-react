@@ -73,58 +73,60 @@ const GET_PB_PAGES_QUERY = `
                 url_path
                 priority
             }
-        }		
+        }
     }
 `;
 
-export const PageBuilderComponent = props => {
-    const { endPoint, maskedId, toPreview, ProductList, ProductGrid } = props;
-    const [data, setData] = useState(false);
-    if (!data) {
-        sendRequest(
-            endPoint,
-            (result) => {
-                setData(result);
-            },
-            toPreview ? PREVIEW_ITEM_QUERY : GET_ITEM_QUERY,
-            { pageMaskedId: maskedId },
-            'getPbItem',
-        );
-    }
-    let spgData;
-    if (
-        data &&
-        data.data &&
-        data.data.spb_page &&
-        (
-            //live
-            (data.data.spb_item && data.data.spb_item.items && data.data.spb_page && data.data.spb_page.items[0]) ||
-            //preview
-            (data.data.spb_page &&
-                data.data.spb_page.items &&
-                data.data.spb_page.items[0] &&
-                data.data.spb_page.items[0].publish_items)
-        )
-    ) {
-        spgData = data.data.spb_page.items[0];
-    }
-    useEffect(() => {
-        if (spgData && spgData.status && spgData.custom_js && !runCustomJSOnce) {
-            try {
-                runCustomJSOnce = true;
-                eval(spgData.custom_js);
-            } catch (err) {
+export const PageBuilderComponent = (props) => {
+	const { endPoint, maskedId, toPreview, ProductList, ProductGrid } = props;
+	const [data, setData] = useState(false);
+	if (!data) {
+		sendRequest(
+			endPoint,
+			(result) => {
+				setData(result);
+			},
+			toPreview ? PREVIEW_ITEM_QUERY : GET_ITEM_QUERY,
+			{ pageMaskedId: maskedId },
+			'getPbItem',
+		);
+	}
+	let spgData;
+	if (
+		(data &&
+			data.data &&
+			data.data.spb_page &&
+			// live
+			data.data.spb_item &&
+			data.data.spb_item.items &&
+			data.data.spb_page &&
+			data.data.spb_page.items[0]) ||
+		// preview
+		(data &&
+			data.data &&
+			data.data.spb_page &&
+			data.data.spb_page.items &&
+			data.data.spb_page.items[0] &&
+			data.data.spb_page.items[0].publish_items)
+	) {
+		spgData = data.data.spb_page.items[0];
+	}
+	useEffect(() => {
+		if (spgData && spgData.status && spgData.custom_js && !runCustomJSOnce) {
+			try {
+				runCustomJSOnce = true;
+				eval(spgData.custom_js);
+			} catch (err) {}
+		}
+	}, [spgData]);
 
-            }
-        }
-    }, [spgData]);
-    
-    if (spgData && spgData.status) {
-        return (
-            <React.Fragment>
-                <Helmet
-                    style={[{
-                        "cssText": `
+	if (spgData && spgData.status) {
+		return (
+			<React.Fragment>
+				<Helmet
+					style={[
+						{
+							cssText: `
                             .spb-item {
                                 background-color: white;
                                 overflow: auto;
@@ -157,75 +159,93 @@ export const PageBuilderComponent = props => {
                             .spb-item.type_image {
                                 padding: 0;
                             }
-                        `
-                    }]}
-                />
-                {
-                    (spgData && spgData.custom_css) ?
-                        <Helmet
-                            style={[{
-                                "cssText": spgData.custom_css
-                            }]}
-                        /> : ''
-                }
-                <Helmet>
-                    {spgData.title ? <title>{spgData.title}</title> : ''}
-                    {spgData.desc ? <meta name="description" content={spgData.desc} /> : ''}
-                    {spgData.keywords ? <meta name="keywords" content={spgData.keywords} /> : ''}
-                </Helmet>
-                <Content data={data.data} ProductList={ProductList} ProductGrid={ProductGrid} />
-            </React.Fragment >
-        );
-    }
-    return '';
+                        `,
+						},
+					]}
+				/>
+				{spgData && spgData.custom_css ? (
+					<Helmet
+						style={[
+							{
+								cssText: spgData.custom_css,
+							},
+						]}
+					/>
+				) : (
+					''
+				)}
+				<Helmet>
+					{spgData.title ? <title>{spgData.title}</title> : ''}
+					{spgData.desc ? (
+						<meta name='description' content={spgData.desc} />
+					) : (
+						''
+					)}
+					{spgData.keywords ? (
+						<meta name='keywords' content={spgData.keywords} />
+					) : (
+						''
+					)}
+				</Helmet>
+				<Content
+					data={data.data}
+					ProductList={ProductList}
+					ProductGrid={ProductGrid}
+				/>
+			</React.Fragment>
+		);
+	}
+	return '';
 };
 
-export const usePbFinder = props => {
-    const { endPoint, integrationToken } = props;
-    const [pbData, setPbData] = useState(false);
-    const [loading, setLoading] = useState(false);
-    const [pathToFind, setPathFoFind] = useState(false);
-    let pageMaskedId;
+export const usePbFinder = (props) => {
+	const { endPoint, integrationToken } = props;
+	const [pbData, setPbData] = useState(false);
+	const [loading, setLoading] = useState(false);
+	const [pathToFind, setPathFoFind] = useState(false);
+	let pageMaskedId;
 
-    const findPage = (pathName) => {
-        setPathFoFind(pathName);
-        if (window.smPbPagesByToken) {
-            setPbData(window.smPbPagesByToken);
-        } else {
-            if (!loading) {
-                setLoading(true);
-                sendRequest(
-                    endPoint,
-                    (result) => {
-                        setLoading(false);
-                        if (result && result.data && result.data.spb_page)
-                            window.smPbPagesByToken = result;
-                        setPbData(result);
-                    },
-                    GET_PB_PAGES_QUERY,
-                    { integrationToken },
-                    'getPbPage',
-                );
-            }
-        }
-    }
+	const findPage = (pathName) => {
+		setPathFoFind(pathName);
+		if (window.smPbPagesByToken) {
+			setPbData(window.smPbPagesByToken);
+		} else {
+			if (!loading) {
+				setLoading(true);
+				sendRequest(
+					endPoint,
+					(result) => {
+						setLoading(false);
+						if (result && result.data && result.data.spb_page)
+							window.smPbPagesByToken = result;
+						setPbData(result);
+					},
+					GET_PB_PAGES_QUERY,
+					{ integrationToken },
+					'getPbPage',
+				);
+			}
+		}
+	};
 
-    if (pbData && pbData.data && pbData.data.spb_page && pathToFind) {
-        const { spb_page } = pbData.data;
-        pageMaskedId = 'notfound';
-        if (spb_page.items && spb_page.items.length) {
-            const pbPages = JSON.parse(JSON.stringify(spb_page.items));
-            pbPages.sort((el1, el2) => parseInt(el2.priority) - parseInt(el1.priority));
-            const pageToFind = pbPages.find(item => item.url_path === pathToFind);
-            if (pageToFind && pageToFind.masked_id)
-                pageMaskedId = pageToFind.masked_id;
-        }
-    }
+	if (pbData && pbData.data && pbData.data.spb_page && pathToFind) {
+		const { spb_page } = pbData.data;
+		pageMaskedId = 'notfound';
+		if (spb_page.items && spb_page.items.length) {
+			const pbPages = JSON.parse(JSON.stringify(spb_page.items));
+			pbPages.sort(
+				(el1, el2) => parseInt(el2.priority) - parseInt(el1.priority),
+			);
+			const pageToFind = pbPages.find((item) => item.url_path === pathToFind);
+			if (pageToFind && pageToFind.masked_id)
+				pageMaskedId = pageToFind.masked_id;
+		}
+	}
 
-    return {
-        loading,
-        pageMaskedId,
-        findPage,
-        pathToFind
-    };
-}
+	return {
+		loading,
+		pageMaskedId,
+		findPage,
+		pathToFind,
+	};
+};
