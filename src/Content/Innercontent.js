@@ -4,6 +4,7 @@ import HtmlParser from 'react-html-parser';
 
 const Innercontent = props => {
     const { item, ProductList, ProductGrid } = props;
+    console.log(item)
 
     if (!item || !item.entity_id) return '';
     let data = {};
@@ -50,6 +51,8 @@ const Innercontent = props => {
         if (data.paragraphContent) return HtmlParser(data.paragraphContent);
     } else if (item.type === 'custom_html') {
         if (data.htmlContent) return HtmlParser(data.htmlContent);
+    } else if (item.type === 'icon') {
+        if (data.icon) return <i className={`zmdi zmdi-${data.icon}`}/>
     }
     return '';
 };

@@ -54,8 +54,8 @@ const PbContent = (props) => {
         }
         return (
             <React.Fragment>
-                <Innercontent item={item} ProductList={ProductList} ProductGrid={ProductGrid} />
                 {children.length ? children : ''}
+                <Innercontent item={item} ProductList={ProductList} ProductGrid={ProductGrid} />
             </React.Fragment>
         );
     };
