@@ -56,10 +56,6 @@ export default function Home() {
           background-color: #ffffff;
         }
 
-        .spb-item.type_button:hover {
-          opacity: 0.8;
-        }
-
         .spb-item.type_image {
           padding: 0;
         }

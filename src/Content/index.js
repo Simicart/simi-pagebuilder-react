@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useMemo } from 'react';
 import Innercontent from './Innercontent';
 import { Carousel } from 'react-responsive-carousel';
 import Button from './Button';
@@ -13,6 +13,8 @@ export const formSubmitMethod = 'form-submit-method';
 export const formSubmitTarget = 'form-submit-url';
 
 const PbContent = (props) => {
+	const [hover, setHover] = useState(false);
+
 	const {
 		data: { spb_item, spb_page },
 		ProductList,
@@ -78,6 +80,43 @@ const PbContent = (props) => {
 
 		const styles = finalStyle;
 		item.stylesParsed = finalStyle;
+
+		const hoverStyle = useMemo(() => {
+			let style;
+			if (item && item.stylesParsed) {
+				try {
+					const _itemStyle = JSON.parse(
+						JSON.stringify(item.stylesParsed) || '{}',
+					);
+					const itemStyle = { ..._itemStyle };
+
+					// add hover style
+					Object.keys(itemStyle).forEach((key) => {
+						if (key.includes('hover_')) {
+							const styleKey = key.replace('hover_', '');
+							itemStyle[styleKey] = itemStyle[key];
+						}
+					});
+
+					if (itemStyle.widthPercent) {
+						itemStyle.width = parseInt(itemStyle.widthPercent, 10) + '%';
+						delete itemStyle.widthPercent;
+					}
+					if (itemStyle.widthPixel) {
+						itemStyle.width = parseInt(itemStyle.widthPixel, 10) + 'px';
+						delete itemStyle.widthPixel;
+					}
+					if (itemStyle.heightPixel) {
+						if (itemStyle.heightPixel === 'auto')
+							itemStyle.height = itemStyle.heightPixel;
+						else itemStyle.height = parseInt(itemStyle.heightPixel, 10) + 'px';
+						delete itemStyle.heightPixel;
+					}
+					style = { ...style, ...itemStyle };
+				} catch (err) {}
+			}
+			return style;
+		}, [item]);
 
 		if (itemType === 'dropdown') {
 			/**
@@ -252,7 +291,13 @@ const PbContent = (props) => {
 				? item.dataParsed[buttonTypeFieldName]
 				: 'button';
 			return (
-				<button type={buttonType} {...itemProps}>
+				<button
+					type={buttonType}
+					{...itemProps}
+					style={hover ? hoverStyle : styles}
+					onMouseOver={() => setHover(true)}
+					onMouseOut={() => setHover(false)}
+				>
 					{innerContent}
 				</button>
 			);
