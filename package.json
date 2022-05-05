@@ -1,6 +1,6 @@
 {
 	"name": "simi-pagebuilder-react",
-	"version": "1.4.2",
+	"version": "1.4.3",
 	"description": "SimiCart React PageBuilder Client",
 	"author": "SimiCart",
 	"license": "MIT",
@@ -52,7 +52,7 @@
 		"prettier": "^2.0.4",
 		"react": "^17.0.1",
 		"react-dom": "^17.0.1",
-		"react-scripts": "^3.4.1"
+		"react-scripts": "^5.0.1"
 	},
 	"files": [
 		"dist"
