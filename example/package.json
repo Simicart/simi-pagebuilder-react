@@ -12,7 +12,7 @@
 	"dependencies": {
 		"react": "link:../node_modules/react",
 		"react-dom": "link:../node_modules/react-dom",
-		"react-intl": "^5.20.4",
+		"react-intl": "^6.0.3",
 		"react-router-dom": "~5.2.0",
 		"react-scripts": "link:../node_modules/react-scripts",
 		"simi-pagebuilder-react": "link:.."
